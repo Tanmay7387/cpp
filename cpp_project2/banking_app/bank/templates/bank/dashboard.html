@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        width: 80%;
+        margin: auto;
+        text-align: center;
+    }
+    .dashboard {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        margin-top: 50px;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    }
+    table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    tr:hover {
+        background-color: #ddd;
+    }
+    .logout-link {
+        float: right;
+        margin-right: 20px;
+        color: #0056b3;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .logout-link:hover {
+        color: #ff0000;
+    }
+    .balance {
+        font-size: 1.5em;
+        color: #0056b3;
+        font-weight: bold;
+    }
+    .transaction-form {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #e7f3fe;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+    }
+    .transaction-form h2 {
+        color: #333;
+    }
+    .transaction-form input, .transaction-form select {
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 95%;
+    }
+    .transaction-form input[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+    .transaction-form input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+</style>
+<div class="container">
+    <div class="dashboard">
+        <a class="logout-link" href="{% url 'logout' %}">Logout</a>
+        <h1>Dashboard</h1>
+        <p>Welcome, {{ request.user.username }}!</p>
+        <p class="balance">Account Balance: {{ account.balance }} EUR</p>
+
+        <!-- Place the messages display here -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Transaction Form -->
+        <div class="transaction-form">
+            <form method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <h2>Make a Transaction</h2>
+                <input type="number" name="amount" placeholder="Amount" required>
+                <select name="type">
+                    <option value="DEPOSIT">Deposit</option>
+                    <option value="WITHDRAWAL">Withdrawal</option>
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+
+        <h2>Transaction History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.timestamp }}</td>
+                    <td>{{ transaction.amount }} EUR</td>
+                    <td>{{ transaction.type }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No transactions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content %}
